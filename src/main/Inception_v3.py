@@ -11,11 +11,17 @@ import re
 from PIL import Image
 import matplotlib.pyplot as plt
 
+#dir param
+label_dir = '/Users/zhengying/Documents/EclipseWorkspace/Inception-v3/src/data/imagenet_2012_challenge_label_map_proto.pbtxt'
+uid_dir = '/Users/zhengying/Documents/EclipseWorkspace/Inception-v3/src/data/imagenet_synset_to_human_label_map.txt'
+pd_dir = '/Users/zhengying/Documents/4_mechine_learning/dataset/inception/inception_model/classify_image_graph_def.pb'
+test_img_dir = '/Users/zhengying/Documents/EclipseWorkspace/Inception-v3/src/data/images/'
+
 class NodeLookup(object):
     def __init__(self):
         #label and img path 
-        label_lookup_path = '/Users/zhengying/Documents/4_mechine_learning/dataset/inception/inception_model/imagenet_2012_challenge_label_map_proto.pbtxt'   
-        uid_lookup_path = '/Users/zhengying/Documents/4_mechine_learning/dataset/inception/inception_model/imagenet_synset_to_human_label_map.txt'
+        label_lookup_path = label_dir  
+        uid_lookup_path = uid_dir
         self.node_lookup = self.load(label_lookup_path, uid_lookup_path)
 
     def load(self, label_lookup_path, uid_lookup_path):
@@ -62,16 +68,15 @@ class NodeLookup(object):
         return self.node_lookup[node_id]
 
 #创建一个图来存放google训练好的模型
-with tf.gfile.FastGFile('/Users/zhengying/Documents/4_mechine_learning/dataset/inception/inception_model/classify_image_graph_def.pb', 'rb') as f:
+with tf.gfile.FastGFile(pd_dir, 'rb') as f:
     graph_def = tf.GraphDef()
     graph_def.ParseFromString(f.read())
     tf.import_graph_def(graph_def, name='')
 
-
 with tf.Session() as sess:
     softmax_tensor = sess.graph.get_tensor_by_name('softmax:0')
     #遍历目录
-    for root,dirs,files in os.walk('/Users/zhengying/Documents/4_mechine_learning/dataset/inception/images/'):
+    for root,dirs,files in os.walk(test_img_dir):
         for file in files:
             if ".jpg" != os.path.splitext(file)[1]:
                 continue
